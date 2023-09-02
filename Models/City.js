@@ -12,6 +12,10 @@ const citySchema= Schema({
           touristSites: {type: String, required:true},
           socialStruggles: {type: String, required:true},
           povertyLevel: {type: String, required:true},
+          itinerary: {
+            type: Schema.Types.ObjectId,
+            ref: 'Itinerary', required:true
+          },
 },{
 
     timestamps: true

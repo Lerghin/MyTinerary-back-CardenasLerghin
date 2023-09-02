@@ -1,4 +1,5 @@
 import City from "../Models/City.js"
+import Itinerary from "../Models/Itinerary.js";
 import cities from "../util/cities.js"
 
 const citiesController ={ 
@@ -7,7 +8,11 @@ const citiesController ={
         let error = null;
         let success = true;
         try {
-            cities = await City.find({});
+            cities = await City.find().populate({
+                path: 'itinerary',
+                select : 'itinerary description',
+               
+            });
             res.json({
                 response: cities,
                 success,
@@ -48,7 +53,11 @@ const citiesController ={
         let error = null;
         let success = true;
         try {
-            city = await City.create(req.body);
+            const itinerary=   await Itinerary.findOne({id : req.body.id})
+            const query = {...req.body} 
+            query.itinerary= itinerary._id
+
+            city = await City.create(query);
             console.log(city);
         } catch (err) {
             console.log(err);
@@ -70,6 +79,7 @@ const citiesController ={
         let success = true;
        
         try {
+            
             city = await City.findOneAndUpdate({_id:id},req.body, { new: true });
           
               res.json({
