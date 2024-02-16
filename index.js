@@ -24,6 +24,6 @@ server.get('/', (request, response, next) => {
 server.use(errorHandler)
 server.use(notFoundHandler)
 
-server.listen(3000, () => {
-  console.log('Servidor corriendo en puerto 3000 ');
+server.listen(4000, () => {
+  console.log('Servidor corriendo en puerto 4000 ');
 });
