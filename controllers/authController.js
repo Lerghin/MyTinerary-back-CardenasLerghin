@@ -52,11 +52,11 @@ signIn : async (req, res, next) => {
             throw new Error( "The email/password is incorrect" )
         }
 
-        let { email, photo, birth_date } = userInDB
+        let { _id,name, lastName, email, photo, birth_date } = userInDB
         const token = jwt.sign( { email, birth_date }, process.env.SECRET_KEY, { expiresIn:'2h' } )
         return res.status(200).json({
             success: true,
-            userData: { email, photo, birth_date },
+            userData: { _id,name, lastName, email, photo, birth_date },
             token: token,
             message: 'Sign in successfully'
         })
@@ -71,7 +71,7 @@ loginWithToken : (req, res) => {
     const { email, photo, name} = req.user
     res.status(200).json({
         success: true,
-        userData: { email, photo, name },
+        userData: { email, photo, name},
         message: 'Sign in successfully',
        
     })

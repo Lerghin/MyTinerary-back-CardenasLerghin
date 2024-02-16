@@ -29,12 +29,11 @@ export const signUpSchema=  joi.object({
     lastName:joi.string().min(3).max(20).required().messages({
         "string.min": "el minimo de caracteres son 3"
     }) ,
+    dni: joi.number() ,
     country:joi.string().min(3).max(20).required().messages({
         "string.min": "el minimo de caracteres son 3"
     }) ,
     photo: joi.string().uri(),
-    birth_date: joi.date().max(Date.now()) ,
-    age: joi.number().min(0).max(60) ,
     phone: joi.number(),
     verified: joi.boolean() ,
 })
