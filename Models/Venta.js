@@ -5,6 +5,7 @@ const ventaSchema = Schema({
     apellido: { type: String, required: true },
     telefono: { type: String, required: true }, 
     cedula: { type: Number, required: true },
+    montoDepositado: { type: Number, required: true },
     referenciaPago:{ type: String, required: true },
     fechaPago: { type: Date, required: true }, 
     metodoPago: { type: String, required: true },
@@ -12,6 +13,10 @@ const ventaSchema = Schema({
         type: Schema.Types.ObjectId,
         ref: 'user', required:true
       },
+     cartData: [ {
+      type: Schema.Types.ObjectId,
+      ref: 'product', required:true
+    },]
    
 },
 {

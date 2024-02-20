@@ -53,7 +53,7 @@ signIn : async (req, res, next) => {
         }
 
         let { _id,name, lastName, email, photo, birth_date } = userInDB
-        const token = jwt.sign( { email, birth_date }, process.env.SECRET_KEY, { expiresIn:'2h' } )
+        const token = jwt.sign( { _id,name, lastName,email, birth_date }, process.env.SECRET_KEY, { expiresIn:'2h' } )
         return res.status(200).json({
             success: true,
             userData: { _id,name, lastName, email, photo, birth_date },
@@ -68,10 +68,12 @@ signIn : async (req, res, next) => {
 },
 
 loginWithToken : (req, res) => {
-    const { email, photo, name} = req.user
+    const {  _id,name, lastName, email, photo, birth_date } = req.user
+    const token = jwt.sign( { _id,name, lastName,email, birth_date }, process.env.SECRET_KEY, { expiresIn:'2h' } )
     res.status(200).json({
         success: true,
-        userData: { email, photo, name},
+        userData: {  _id,name, lastName, email, photo, birth_date },
+        token: token,
         message: 'Sign in successfully',
        
     })
