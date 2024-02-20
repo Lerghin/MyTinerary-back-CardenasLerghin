@@ -1,5 +1,7 @@
 import Venta from "../Models/Venta.js";
 import User from "../Models/User.js";
+import generarPDFVenta from "../Services/pdfService.js";
+import PDFDocument from 'pdfkit';
 
 const ventasController = {
   getAllVentas: async (req, res, next) => {
@@ -7,11 +9,10 @@ const ventasController = {
     let error = null;
     let success = true;
     try {
-        ventas = await Venta.find().populate({
-            path: 'userId',
-            select : 'user name user lastName user email',
-           
-        });
+      ventas = await Venta.find().populate({
+        path: "userId",
+        select: "user name user lastName user email",
+      });
       res.json({
         response: ventas,
         success,
@@ -46,30 +47,27 @@ const ventasController = {
       error,
     });
   },
-
   createOneVenta: async (req, res, next) => {
     console.log(req.body);
-    let venta;
-    let error = null;
-    let success = true;
-
     try {
       const user = await User.findOne({ id: req.body.id });
       const query = { ...req.body };
       query.user = user._id;
-      venta = await Venta.create(query);
-      console.log(venta);
+      const venta = await Venta.create(query);
+  
+      // Generar y enviar el PDF
+      const doc = await generarPDFVenta(req.body);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", 'attachment; filename="venta.pdf"');
+      doc.pipe(res); // Transmite el PDF directamente a la respuesta
+      doc.end(); // Finaliza la transmisión
+  
     } catch (err) {
-      console.log(err);
-      success = false;
-      error = err;
+      console.error(err);
+      next(err);
     }
-    res.json({
-      response: venta,
-      success,
-      error,
-    });
-  },
+  }
+,
 
   updateOneVenta: async (req, res, next) => {
     const { id } = req.params;
@@ -96,13 +94,12 @@ const ventasController = {
     const { id } = req.params;
     let venta;
     let success = true;
-    
+
     try {
       venta = await Venta.findOneAndDelete({ _id: id });
       res.json({
         response: venta,
         success,
-        
       });
     } catch (err) {
       console.log(err);
@@ -113,4 +110,4 @@ const ventasController = {
   },
 };
 
-export default ventasController
+export default ventasController;
