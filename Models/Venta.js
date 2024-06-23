@@ -6,7 +6,7 @@ const ventaSchema = Schema({
     telefono: { type: String, required: true }, 
     cedula: { type: Number, required: true },
     montoDepositado: { type: Number, required: true },
-    referenciaPago:{ type: String, required: true },
+    referenciaPago:{ type: String, required: true, unique: true},
     fechaPago: { type: Date, required: true }, 
     metodoPago: { type: String, required: true },
     userId: {

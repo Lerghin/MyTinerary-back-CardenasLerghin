@@ -14,6 +14,7 @@ const authController={
             body.password = passwordHash
 
             const newUser = await User.create(body)
+            console.log(newUser)
             newUser.online=true
 
             /*  const esIgual = bcrypt.compareSync(req.body.password, passwordHash) */
@@ -24,6 +25,7 @@ const authController={
                 success: true,
                 userData: newUser,
                 token : token,
+               
                 status: 'online',
                 message: 'Sign up successfully'
             })
@@ -52,12 +54,13 @@ signIn : async (req, res, next) => {
             throw new Error( "The email/password is incorrect" )
         }
 
-        let { _id,name, lastName, email, photo, birth_date } = userInDB
-        const token = jwt.sign( { _id,name, lastName,email, birth_date }, process.env.SECRET_KEY, { expiresIn:'2h' } )
+        let { _id,name, lastName, email, photo, birth_date, role} = userInDB
+        const token = jwt.sign( { _id,name, lastName,email, birth_date, role }, process.env.SECRET_KEY, { expiresIn:'2h' } )
         return res.status(200).json({
             success: true,
-            userData: { _id,name, lastName, email, photo, birth_date },
+            userData: { _id,name, lastName, email, photo, birth_date, role },
             token: token,
+        
             message: 'Sign in successfully'
         })
 
@@ -69,10 +72,11 @@ signIn : async (req, res, next) => {
 
 loginWithToken : (req, res) => {
     const {  _id,name, lastName, email, photo, birth_date } = req.user
-    const token = jwt.sign( { _id,name, lastName,email, birth_date }, process.env.SECRET_KEY, { expiresIn:'2h' } )
+    const token = jwt.sign( { _id,name, lastName,email, birth_date, role }, process.env.SECRET_KEY, { expiresIn:'2h' } )
     res.status(200).json({
         success: true,
-        userData: {  _id,name, lastName, email, photo, birth_date },
+        userData: {  _id,name, lastName, email, photo, birth_date, role },
+         
         token: token,
         message: 'Sign in successfully',
        

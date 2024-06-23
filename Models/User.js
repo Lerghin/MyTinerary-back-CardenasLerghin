@@ -11,7 +11,7 @@ const userSchema = Schema({
     photo:{ type:String, default:'https://i.postimg.cc/G2Jy4YNm/smile.png'},
     phone:{ type: Number, required: true },
     verified:{ type: Boolean, default: false },
-
+    role:{type: String , required: true}
 },
 {
 

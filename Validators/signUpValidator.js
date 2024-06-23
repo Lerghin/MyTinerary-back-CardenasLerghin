@@ -33,6 +33,7 @@ export const signUpSchema=  joi.object({
     country:joi.string().min(3).max(20).required().messages({
         "string.min": "el minimo de caracteres son 3"
     }) ,
+    role: joi.string(),
     photo: joi.string().uri(),
     phone: joi.number(),
     verified: joi.boolean() ,
