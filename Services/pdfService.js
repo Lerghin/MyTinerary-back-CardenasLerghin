@@ -1,5 +1,5 @@
 import PDFDocument from "pdfkit-table";
-import User from "../Models/User.js"; // Importa el modelo de usuario (ajusta la ruta según sea necesario)
+import User from "../Models/User.js"; // Ajusta la ruta según sea necesario
 import { readFileSync } from "fs";
 
 const generarPDFVenta = async (datosVenta) => {
@@ -13,15 +13,16 @@ const generarPDFVenta = async (datosVenta) => {
     fechaPago,
     metodoPago,
     userId,
-    // cartData ya no es necesario
+    productos, 
+    total,
   } = datosVenta;
 
   // Crear un nuevo documento PDF
   const doc = new PDFDocument({ margin: 50 });
 
   // **Agregar logo de la empresa**
-  const logo = await readFileSync("./assets/logo.jpeg"); // Ajusta la ruta a tu imagen
-  doc.image(logo, { width: 100, align: "center", borderRadius: 10 });
+  const logo = await readFileSync("./assets/logo.png"); // Ajusta la ruta a tu imagen
+  doc.image(logo, { width: 100, align: "center" });
 
   // Configurar el documento PDF
   doc.fontSize(12);
@@ -35,7 +36,7 @@ const generarPDFVenta = async (datosVenta) => {
   // **Título del documento**
   doc.text("Detalles de la Compra", { align: "center" }).moveDown();
 
-  // Agregar los detalles de la venta
+  // **Detalles de la compra**
   doc.table({
     headers: ["Datos de Compra", " "],
     rows: [
@@ -43,6 +44,7 @@ const generarPDFVenta = async (datosVenta) => {
       ["Apellido", apellido],
       ["Teléfono", telefono],
       ["Cédula", cedula],
+      ["Total a Pagar", `$${total}`],
       ["Monto Depositado", `$${montoDepositado}`], // Mostrar monto en USD
       ["Referencia de Pago", referenciaPago],
       ["Fecha de Pago", fechaPago],
@@ -54,9 +56,32 @@ const generarPDFVenta = async (datosVenta) => {
       rowIndex === 0 || rowIndex === rowCount,
   });
 
+  // **Tabla de Productos Comprados**
+  doc.moveDown().text("Productos Comprados", { align: "center" }).moveDown();
+
+  // Calcular el total de los productos
+  const totalProductos = productos.reduce((sum, product) => sum + product.precio * product.cantidad, 0);
+
+  // Crear la tabla de productos
+  const productTable = {
+    headers: ["Producto", "Cantidad", "Precio Unitario (USD)", "Total (USD)"],
+    rows: [
+      ...productos.map(product => [
+        product.nombre,
+        product.cantidad,
+        `$${product.precio}`,
+        `$${product.precio * product.cantidad}`
+      ]),
+      // Agregar una fila para el total a pagar
+      ["", "", "Total a Pagar:", `$${totalProductos}`]
+    ],
+  };
+
+  doc.table(productTable, { width: 400 });
+
   // **Información del usuario**
   try {
-    const userData = await User.findById(userId);
+    const userData = await User.findById(datosVenta.userId);
     if (userData) {
       doc
         .moveDown()
@@ -64,7 +89,7 @@ const generarPDFVenta = async (datosVenta) => {
         .moveDown();
 
       doc.table({
-        headers: ["Campo", "Valor"],
+        headers: ["Datos del Usuario ", ""],
         rows: [
           ["Nombre", userData.name],
           ["Apellido", userData.lastName],

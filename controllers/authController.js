@@ -71,7 +71,8 @@ signIn : async (req, res, next) => {
 },
 
 loginWithToken : (req, res) => {
-    const {  _id,name, lastName, email, photo, birth_date } = req.user
+    const {  _id,name, lastName, email, photo, birth_date, role } = req.user
+
     const token = jwt.sign( { _id,name, lastName,email, birth_date, role }, process.env.SECRET_KEY, { expiresIn:'2h' } )
     res.status(200).json({
         success: true,
