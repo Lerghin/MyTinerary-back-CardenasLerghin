@@ -6,6 +6,10 @@ const productSchema = Schema({
     stock: { type: Number, required: true },
     thumbnail:{ type: String, required: true },
     category:{ type: String, required: true },
+    isActive: {
+        type: Boolean,
+        default: true,
+      },
 },
 {
     timestamps: true

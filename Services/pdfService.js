@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit-table";
 import User from "../Models/User.js"; // Ajusta la ruta según sea necesario
 import { readFileSync } from "fs";
+import axios from "axios";
 
 const generarPDFVenta = async (datosVenta) => {
   const {
@@ -13,8 +14,10 @@ const generarPDFVenta = async (datosVenta) => {
     fechaPago,
     metodoPago,
     userId,
-    productos, 
+    productos,
     total,
+    montoEnBs,
+    comprobante, // URL del comprobante de pago
   } = datosVenta;
 
   // Crear un nuevo documento PDF
@@ -44,8 +47,9 @@ const generarPDFVenta = async (datosVenta) => {
       ["Apellido", apellido],
       ["Teléfono", telefono],
       ["Cédula", cedula],
-      ["Total a Pagar", `$${total}`],
-      ["Monto Depositado", `$${montoDepositado}`], // Mostrar monto en USD
+      ["Total a Pagar (USD)", `$${total}`],
+      ["Monto Depositado (USD)", `$${montoDepositado}`],
+      ["Monto en Bs", `${montoEnBs} Bs`], // Mostrar el monto en Bs
       ["Referencia de Pago", referenciaPago],
       ["Fecha de Pago", fechaPago],
       ["Método de Pago", metodoPago],
@@ -59,8 +63,8 @@ const generarPDFVenta = async (datosVenta) => {
   // **Tabla de Productos Comprados**
   doc.moveDown().text("Productos Comprados", { align: "center" }).moveDown();
 
-  // Calcular el total de los productos
-  const totalProductos = productos.reduce((sum, product) => sum + product.precio * product.cantidad, 0);
+  // Calcular el total de los productos en USD
+  const totalProductosUSD = productos.reduce((sum, product) => sum + product.precio * product.cantidad, 0);
 
   // Crear la tabla de productos
   const productTable = {
@@ -72,8 +76,10 @@ const generarPDFVenta = async (datosVenta) => {
         `$${product.precio}`,
         `$${product.precio * product.cantidad}`
       ]),
-      // Agregar una fila para el total a pagar
-      ["", "", "Total a Pagar:", `$${totalProductos}`]
+      // Agregar una fila para el total a pagar en USD
+      ["", "", "Total a Pagar en USD:", `$${totalProductosUSD}`],
+      // Agregar una fila para el total a pagar en Bs
+      ["", "", "Total a Pagar en Bs:", `${montoEnBs} Bs`]
     ],
   };
 
@@ -81,7 +87,7 @@ const generarPDFVenta = async (datosVenta) => {
 
   // **Información del usuario**
   try {
-    const userData = await User.findById(datosVenta.userId);
+    const userData = await User.findById(userId);
     if (userData) {
       doc
         .moveDown()
@@ -89,7 +95,7 @@ const generarPDFVenta = async (datosVenta) => {
         .moveDown();
 
       doc.table({
-        headers: ["Datos del Usuario ", ""],
+        headers: ["Datos del Usuario", ""],
         rows: [
           ["Nombre", userData.name],
           ["Apellido", userData.lastName],
@@ -108,6 +114,45 @@ const generarPDFVenta = async (datosVenta) => {
   } catch (error) {
     console.error("Error al obtener información del usuario:", error);
     doc.moveDown().text("Error al obtener información del usuario.");
+  }
+
+  // **Agregar comprobante de pago**
+  if (comprobante) {
+    try {
+      const response = await axios.get(comprobante, { responseType: 'arraybuffer' });
+      const imgBuffer = Buffer.from(response.data, 'binary');
+
+      // Obtener el tamaño de la imagen original
+      const image = doc.openImage(imgBuffer);
+      const imageWidth = image.width;
+      const imageHeight = image.height;
+
+      // Calcular el nuevo tamaño manteniendo la proporción
+      const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+      const pageHeight = doc.page.height - doc.page.margins.top - doc.page.margins.bottom;
+
+      let newWidth = imageWidth;
+      let newHeight = imageHeight;
+
+      if (imageWidth > pageWidth) {
+        newWidth = pageWidth;
+        newHeight = (pageWidth / imageWidth) * imageHeight;
+      }
+
+      if (newHeight > pageHeight) {
+        newHeight = pageHeight;
+        newWidth = (pageHeight / imageHeight) * imageWidth;
+      }
+
+      // Agregar la imagen al final de la página
+      doc.addPage(); // Añadir una nueva página para la imagen
+      doc.moveDown().text("Comprobante de Pago", { align: "center" }).moveDown();
+      doc.image(imgBuffer, { fit: [newWidth, newHeight], align: "center" });
+      
+    } catch (error) {
+      console.error("Error al descargar la imagen del comprobante:", error);
+      doc.moveDown().text("No se pudo cargar la imagen del comprobante.");
+    }
   }
 
   // Finalizar el documento y devolverlo como un buffer

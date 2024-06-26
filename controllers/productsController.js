@@ -12,17 +12,27 @@ const productsController = {
     }
   },
 
-  getOneProduct: async(productId) => {
-    let product;
+  getOneProduct:  async(req, res, next) => {
+    console.log(req.params);
+    const { id } = req.params;
+    console.log(id);
+    let products;
+    let error = null;
+    let success = true;
     try {
-      // Aquí asumimos que `productId` es un ObjectId válido
-      product = await Product.findById(productId);
+        products = await Product.findById({_id:id});
     } catch (err) {
-      console.log(err);
-      throw new Error('Product not found or another error occurred');
+        console.log(err);
+        success = false;
+        error = err;
     }
-    return product;
-  },
+   
+    res.json({
+        response: products,
+        success,
+        error
+    });
+},
 
   createOneProduct: async (req, res, next) => {
     try {
