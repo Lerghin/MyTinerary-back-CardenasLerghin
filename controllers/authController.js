@@ -4,6 +4,13 @@ import jwt from 'jsonwebtoken'
 
 const authController={
 
+
+
+
+
+
+
+
     signUp: async (req, res, next) => {
         try {
 
@@ -91,9 +98,40 @@ logout: (req, res) => {
       message: 'Logout successfully',
       status: 'offline' 
     });
-  }
+  },
 
 
+  getAllUsers: async(req, res, next) => {
+    try {
+      const users= await User.find();
+      res.status(201).json({
+        response: users
+      });
+    } catch (error) {
+      res.status(500).json({ error });
+    }
+  },
+  getOneUser:  async(req, res, next) => {
+    console.log(req.params);
+    const { id } = req.params;
+    console.log(id);
+    let user;
+    let error = null;
+    let success = true;
+    try {
+        user= await User.findById({_id:id});
+    } catch (err) {
+        console.log(err);
+        success = false;
+        error = err;
+    }
+   
+    res.json({
+        response: user,
+        success,
+        error
+    });
+},
 
 
 

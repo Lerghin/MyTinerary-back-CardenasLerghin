@@ -140,6 +140,26 @@ const ventasController = {
       next(err);
     }
   },
+ getVentasByUserId: async (req, res) => {
+    const userId = req.params.userId; 
+    console.log("eeste es el usuario", userId)
+  
+    try {
+      // Buscar todas las ventas del usuario por userId
+      const ventas = await Venta.find({userId}).populate("userId");
+      console.log(ventas)
+      if (ventas.length === 0) {
+        return res.json({ message: 'No se encontraron ventas para este usuario' });
+      }
+  
+      // Respuesta con las ventas encontradas
+      return res.status(200).json({ response: ventas });
+    } catch (error) {
+      // Manejo de errores
+      console.error('Error al buscar ventas por userId:', error);
+      return res.status(500).json({ message: 'Error al buscar ventas', error });
+    }
+  },
 
   deleteOneVenta: async (req, res, next) => {
     const { id } = req.params;

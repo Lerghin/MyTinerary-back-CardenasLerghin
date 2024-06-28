@@ -9,8 +9,9 @@ import passport from "../Middleware/passport.js";
 import { dniExists } from "../Middleware/dniExists.js";
 
 const authRouter = Router()
-const {signUp, signIn, loginWithToken}=authController
-
+const {signUp, signIn, loginWithToken, getAllUsers, getOneUser}=authController
+authRouter.get('/users/traer', authController.getAllUsers)
+authRouter.get('/users/:id', authController.getOneUser)
 authRouter.post('/in', signIn)
 authRouter.post('/up', validator(signUpSchema),emailExists,dniExists,   signUp)
 authRouter.get('/token', passport.authenticate('jwt', {session:false}), loginWithToken)
