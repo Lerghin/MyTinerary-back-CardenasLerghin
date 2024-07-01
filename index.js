@@ -12,7 +12,7 @@ server.use(express.json())
 
 // Configurar CORS con opciones específicas para producción
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // Ajusta esto a tu dominio en producción
+  origin: process.env.CORS_ORIGIN || 'https://front-ecom-ebenezer-u788.vercel.app', // Ajusta esto a tu dominio en producción
   optionsSuccessStatus: 200
 };
 server.use(cors(corsOptions));
