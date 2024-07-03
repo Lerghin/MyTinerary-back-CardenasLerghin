@@ -43,8 +43,9 @@ const PORT = process.env.PORT || 5000; // Cambié el puerto a 5000
 server.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
-/*
 
+
+/*
 import 'dotenv/config.js'
 import express from "express";
 import indexRouter from "./routers/indexRouter.js";
