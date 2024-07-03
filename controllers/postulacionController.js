@@ -101,8 +101,8 @@ getPostulacionByUserId: async (req, res) => {
       return res.status(200).json({ response: postulaciones });
     } catch (error) {
       // Manejo de errores
-      console.error('Error al buscar ventas por userId:', error);
-      return res.status(500).json({ message: 'Error al buscar ventas', error });
+      console.error('Error al buscar  postulacion por userId:', error);
+      return res.status(500).json({ message: 'Error al buscar postulacion', error });
     }
   },
 }
